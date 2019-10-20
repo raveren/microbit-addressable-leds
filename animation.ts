@@ -4,7 +4,8 @@ let strip = neopixel.create(DigitalPin.P0, numPixels, NeoPixelMode.RGB)
 let frameNo = 0
 
 const FIREFLY_FRAMES = 8 // how often to advance clock
-const FIREFLY_MIDNIGHT = 8 // every how many 'clock ticks' to blink
+const FIREFLY_STEP = 10 // how often to advance clock
+const FIREFLY_MIDNIGHT = 80 // every how many 'clock ticks' to blink
 let firefly_timer: number[] = []
 let fireflyAnimations: number[] = [
     NeoPixelColors.Black,
@@ -52,7 +53,7 @@ function animFireflies() {
     for (let i = 0; i < numPixels; i++) {
         let ffclock = firefly_timer[i]
 
-        firefly_timer[i]++
+        firefly_timer[i] += FIREFLY_STEP
 
         if (ffclock >= FIREFLY_MIDNIGHT) { // strike!
             // if (i >= 2 && firefly_timer[i - 2] > 0) firefly_timer[i - 2]++
@@ -61,11 +62,12 @@ function animFireflies() {
             // if (i < numPixels + 3 && firefly_timer[i + 2] > 0) firefly_timer[i + 2]++
             // if (i < numPixels + 4 && firefly_timer[i + 3] > 0) firefly_timer[i + 3]++
 
-            if (i >= 1 && firefly_timer[i - 1] > 0) firefly_timer[i - 1]++
-            if (i < numPixels + 2 && firefly_timer[i + 1] > 0) firefly_timer[i + 1]++
+
+            // if (i >= 1 && firefly_timer[i - 1] > 0) firefly_timer[i - 1]++
+            // if (i < numPixels + 2 && firefly_timer[i + 1] > 0) firefly_timer[i + 1]++
 
 
-            // let start = 0
+            // let start = -1
             // let end = 32
             // if (numPixels / 2 < i) {
             //     start = 33
@@ -75,6 +77,9 @@ function animFireflies() {
             //     if (firefly_timer[start] > 0) firefly_timer[start]++
             // }
 
+            for (let j = 0; j < numPixels; j++) { // each pixel runs his independent clock
+                if (firefly_timer[j] > 0 && i != j) firefly_timer[i]++
+            }
 
             ffclock = firefly_timer[i] = -1
         }
@@ -85,7 +90,7 @@ function animFireflies() {
                 let color = fireflyAnimations[c - 1]
                 if (color !== undefined) strip.setPixelColor(i, color)
 
-                firefly_timer[i] -= 2 // walk backwards
+                firefly_timer[i] -= (FIREFLY_STEP + 1) // walk backwards by 1
             } else {
                 firefly_timer[i] = 0
             }
