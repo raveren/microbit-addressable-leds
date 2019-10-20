@@ -1,120 +1,94 @@
-let numPixels = 19
-
-const FRAMES = 8 // how often to advance clock
-const MIDNIGHT = 8 // every how many 'clock ticks' to blink
-
-
+let numPixels = 64
 let strip = neopixel.create(DigitalPin.P0, numPixels, NeoPixelMode.RGB)
-let fireflyClocks: number[] = []
-
-let pixelAnimations: { frames: number, color: number }[][] = []
 
 let frameNo = 0
-while (true) {
-    if (frameNo > 1000) {
-        if (frameNo > 1024) {
-            frameNo = 0
-        }
 
-        animRandom()
-    } else {
-        animFireflies()
-    }
+const FIREFLY_FRAMES = 8 // how often to advance clock
+const FIREFLY_MIDNIGHT = 8 // every how many 'clock ticks' to blink
+let firefly_timer: number[] = []
+let fireflyAnimations: number[] = [
+    NeoPixelColors.Black,
+    neopixel.rgb(160, 0, 0),
+    neopixel.rgb(0, 160, 0),
+    neopixel.rgb(0, 0, 160),
+    NeoPixelColors.Black,
+]
+
+/*
+
+fireflyAnimations[0] = neopixel.rgb(50, 50, 0)
+fireflyAnimations[1] = neopixel.rgb(80, 80, 0)
+fireflyAnimations[3] = neopixel.rgb(120, 120, 0)
+fireflyAnimations[4] = neopixel.rgb(150, 150, 0)
+fireflyAnimations[6] = neopixel.rgb(250, 250, 0)
+fireflyAnimations[8] = neopixel.rgb(150, 150, 0)
+fireflyAnimations[9] = neopixel.rgb(80, 80, 0)
+fireflyAnimations[10] = neopixel.rgb(0, 0, 0)
+
+*/
+
+for (let i = 0; i < numPixels; i++) { // each pixel runs his independent clock
+    firefly_timer[i] = Math.floor(Math.random() * FIREFLY_MIDNIGHT)
+}
+
+
+while (true) {
+    animFireflies()
+
 
     stepAnimation()
-
     frameNo++
     basic.pause(40)
 }
+
 function stepAnimation() {
-    for (let i = 0; i < numPixels; i++) {
-        if (pixelAnimations[i] && pixelAnimations[i].length != 0) {
-            let currAnim = pixelAnimations[i][0]
-
-            strip.setPixelColor(i, currAnim.color)
-            currAnim.frames--
-
-            if (currAnim.frames <= 0) {
-                pixelAnimations[i].shift() // remove first from array
-            }
-        }
-
-    }
-
     strip.show()
 }
 
-function animRandom() {
-    // if (frameNo % 8 != 0) return
-
-    let i = Math.floor(Math.random() * numPixels)
-
-    pixelAnimations[i] = [
-        {
-            color: neopixel.rgb(Math.floor(Math.random() * 60), Math.floor(Math.random() * 60), Math.floor(Math.random() * 60)),
-            frames: 8
-        },
-
-        {
-            color: neopixel.rgb(Math.floor(Math.random() * 60), Math.floor(Math.random() * 60), Math.floor(Math.random() * 60)),
-            frames: 8
-        }
-    ]
-}
 
 function animFireflies() {
-    if (frameNo % 1000 != 0) {
-        for (let i = 0; i < numPixels; i++) { // each pixel runs his independant clock
-            fireflyClocks[i] = Math.floor(Math.random() * MIDNIGHT)
-        }
-    }
-
-    if (frameNo % FRAMES != 0) return  // every Nth frame, advance clock
+    if (frameNo % FIREFLY_FRAMES != 0) return  // every Nth frame, advance clock
 
     for (let i = 0; i < numPixels; i++) {
-        fireflyClocks[i]++
+        let ffclock = firefly_timer[i]
 
-        if (fireflyClocks[i] >= MIDNIGHT) {
-            pixelAnimations[i] = [
-                {
-                    color: neopixel.rgb(50, 50, 0),
-                    frames: 3
-                },
-                {
-                    color: neopixel.rgb(120, 120, 0),
-                    frames: 3
-                },
-                {
-                    color: neopixel.rgb(235, 235, 0),
-                    frames: 8
-                },
-                {
-                    color: neopixel.rgb(180, 180, 0),
-                    frames: 3
-                },
-                {
-                    color: neopixel.rgb(50, 50, 0),
-                    frames: 3
-                },
-                {
-                    color: neopixel.rgb(0, 0, 0),
-                    frames: 0
-                }
-            ]
+        firefly_timer[i]++
 
-            let inSync = true
-            for (let j = 0; j < numPixels; j++) { // each pixel runs his independant clock
-                fireflyClocks[j]++
-                if (inSync && fireflyClocks[j] < MIDNIGHT) {
-                    inSync = false
-                }
+        if (ffclock >= FIREFLY_MIDNIGHT) { // strike!
+            // if (i >= 2 && firefly_timer[i - 2] > 0) firefly_timer[i - 2]++
+            // if (i >= 1 && firefly_timer[i - 1] > 0) firefly_timer[i - 1]++
+            // if (i < numPixels + 2 && firefly_timer[i + 1] > 0) firefly_timer[i + 1]++
+            // if (i < numPixels + 3 && firefly_timer[i + 2] > 0) firefly_timer[i + 2]++
+            // if (i < numPixels + 4 && firefly_timer[i + 3] > 0) firefly_timer[i + 3]++
+
+            if (i >= 1 && firefly_timer[i - 1] > 0) firefly_timer[i - 1]++
+            if (i < numPixels + 2 && firefly_timer[i + 1] > 0) firefly_timer[i + 1]++
+
+
+            // let start = 0
+            // let end = 32
+            // if (numPixels / 2 < i) {
+            //     start = 33
+            //     end = 63
+            // }
+            // for (; start < end; start++) { // each pixel runs his independent clock
+            //     if (firefly_timer[start] > 0) firefly_timer[start]++
+            // }
+
+
+            ffclock = firefly_timer[i] = -1
+        }
+
+        if (ffclock < 0) { // negative values store internal animation state
+            let c = -ffclock
+            if (c <= fireflyAnimations.length) {
+                let color = fireflyAnimations[c - 1]
+                if (color !== undefined) strip.setPixelColor(i, color)
+
+                firefly_timer[i] -= 2 // walk backwards
+            } else {
+                firefly_timer[i] = 0
             }
-
-            if (inSync && frameNo < 9000) {
-                frameNo = 9000
-            }
-
-            fireflyClocks[i] = 0
         }
     }
 }
