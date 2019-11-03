@@ -1,4 +1,4 @@
-let numPixels = 64
+let numPixels = 20
 let strip = neopixel.create(DigitalPin.P0, numPixels, NeoPixelMode.RGB)
 
 let frameNo = 0
@@ -8,23 +8,29 @@ const FIREFLY_STEP = 10 // how often to advance clock
 const FIREFLY_MIDNIGHT = 80 // every how many 'clock ticks' to blink
 let firefly_timer: number[] = []
 let fireflyAnimations: number[] = [
-    NeoPixelColors.Black,
-    neopixel.rgb(160, 0, 0),
-    neopixel.rgb(0, 160, 0),
-    neopixel.rgb(0, 0, 160),
-    NeoPixelColors.Black,
+    neopixel.rgb(10, 10, 0),
+    neopixel.rgb(30, 30, 0),
+    neopixel.rgb(50, 50, 0),
+    neopixel.rgb(80, 80, 0),
+    // neopixel.rgb(120, 120, 0),
+    // neopixel.rgb(150, 150, 0),
+    // neopixel.rgb(250, 250, 0),
+    // neopixel.rgb(150, 150, 0),
+    neopixel.rgb(80, 80, 0),
+    neopixel.rgb(50, 50, 0),
+    neopixel.rgb(0, 0, 0),
 ]
 
 
-
-// fireflyAnimations[0] = neopixel.rgb(50, 50, 0)
-// fireflyAnimations[1] = neopixel.rgb(80, 80, 0)
-// fireflyAnimations[3] = neopixel.rgb(120, 120, 0)
-// fireflyAnimations[4] = neopixel.rgb(150, 150, 0)
-// fireflyAnimations[6] = neopixel.rgb(250, 250, 0)
-// fireflyAnimations[8] = neopixel.rgb(150, 150, 0)
-// fireflyAnimations[9] = neopixel.rgb(80, 80, 0)
-// fireflyAnimations[10] = neopixel.rgb(0, 0, 0)
+//
+// fireflyAnimations[0] = neopixel.rgb(50, 50, 0),
+// fireflyAnimations[1] = neopixel.rgb(80, 80, 0),
+// fireflyAnimations[3] = neopixel.rgb(120, 120, 0),
+// fireflyAnimations[4] = neopixel.rgb(150, 150, 0),
+// fireflyAnimations[6] = neopixel.rgb(250, 250, 0),
+// fireflyAnimations[8] = neopixel.rgb(150, 150, 0),
+// fireflyAnimations[9] = neopixel.rgb(80, 80, 0),
+// fireflyAnimations[10] = neopixel.rgb(0, 0, 0),
 
 
 
@@ -39,7 +45,7 @@ while (true) {
 
     frameNo++
     strip.show()
-    basic.pause(40)
+    basic.pause(20)
 }
 
 
