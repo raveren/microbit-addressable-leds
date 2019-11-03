@@ -7,15 +7,9 @@ const FIREFLY_FRAMES = 8 // how often to advance clock
 const FIREFLY_STEP = 10 // how often to advance clock
 const FIREFLY_MIDNIGHT = 80 // every how many 'clock ticks' to blink
 let firefly_timer: number[] = []
-let fireflyAnimations: number[] = [
-    NeoPixelColors.Black,
-    neopixel.rgb(160, 0, 0),
-    neopixel.rgb(0, 160, 0),
-    neopixel.rgb(0, 0, 160),
-    NeoPixelColors.Black,
-]
+let fireflyAnimations: number[] = []
 
-/*
+
 
 fireflyAnimations[0] = neopixel.rgb(50, 50, 0)
 fireflyAnimations[1] = neopixel.rgb(80, 80, 0)
@@ -26,7 +20,7 @@ fireflyAnimations[8] = neopixel.rgb(150, 150, 0)
 fireflyAnimations[9] = neopixel.rgb(80, 80, 0)
 fireflyAnimations[10] = neopixel.rgb(0, 0, 0)
 
-*/
+
 
 for (let i = 0; i < numPixels; i++) { // each pixel runs his independent clock
     firefly_timer[i] = Math.floor(Math.random() * FIREFLY_MIDNIGHT)
@@ -37,13 +31,9 @@ while (true) {
     animFireflies()
 
 
-    stepAnimation()
     frameNo++
-    basic.pause(40)
-}
-
-function stepAnimation() {
     strip.show()
+    basic.pause(40)
 }
 
 
@@ -51,7 +41,6 @@ function animFireflies() {
     if (frameNo % FIREFLY_FRAMES != 0) return  // every Nth frame, advance clock
 
     for (let i = 0; i < numPixels; i++) {
-        let ffclock = firefly_timer[i]
 
         firefly_timer[i] += FIREFLY_STEP
 
@@ -78,14 +67,18 @@ function animFireflies() {
             // }
 
             for (let j = 0; j < numPixels; j++) { // each pixel runs his independent clock
-                if (firefly_timer[j] > 0 && i != j) firefly_timer[i]++
+                if (firefly_timer[j] > 0 && i != j) firefly_timer[j]++
+                // if (firefly_timer[j] >= FIREFLY_MIDNIGHT) {
+                    // strip.setPixelColor(j, neopixel.rgb(120, 120, 0))
+                    // firefly_timer[j] = FIREFLY_MIDNIGHT - 1
+                // }
             }
 
-            ffclock = firefly_timer[i] = -1
+            firefly_timer[i] = -1
         }
 
-        if (ffclock < 0) { // negative values store internal animation state
-            let c = -ffclock
+        if (firefly_timer[i] < 0) { // negative values store internal animation state
+            let c = -firefly_timer[i]
             if (c <= fireflyAnimations.length) {
                 let color = fireflyAnimations[c - 1]
                 if (color !== undefined) strip.setPixelColor(i, color)
