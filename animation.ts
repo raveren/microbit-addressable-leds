@@ -1,16 +1,16 @@
-/* **
-*  Global configuration
-* */
+/***
+ *  Global configuration
+ * */
 let numPixels = 64
 
-/* **
-*  Firefly variables
-* */
+/***
+ *  Firefly variables
+ * */
 
 let strip = neopixel.create(DigitalPin.P0, numPixels, NeoPixelMode.RGB)
 let frameNo = 0
 
-const FIREFLY_FRAMES = 8 // how often to advance clock
+const FIREFLY_FRAMES = 4 // how often to advance clock
 const FIREFLY_MIDNIGHT = numPixels + 5 // every how many 'clock ticks' to blink
 const FIREFLY_STEP = Math.floor(FIREFLY_MIDNIGHT / 10)
 
@@ -38,21 +38,23 @@ firefly_flash_sequence[17] = neopixel.rgb(5, 5, 5)
 firefly_flash_sequence[LAST_SEQUENCE_FRAME] = 0
 
 const COOL_COLORS = [
-    // neopixel.rgb(255, 0, 0),
-    // neopixel.rgb(0, 255, 0),
-    // neopixel.rgb(0, 0, 255),
+    neopixel.rgb(255, 0, 0),
+    neopixel.rgb(0, 255, 0),
+    neopixel.rgb(0, 255, 0),
+    neopixel.rgb(0, 0, 255),
 
     neopixel.rgb(120, 0, 0),
     neopixel.rgb(0, 120, 0),
+    neopixel.rgb(0, 120, 0),
     neopixel.rgb(0, 0, 120),
-
+    //
     neopixel.rgb(120, 0, 120),
     neopixel.rgb(120, 120, 0),
     neopixel.rgb(0, 120, 120),
 
-    neopixel.rgb(60, 0, 120),
-    neopixel.rgb(60, 120, 0),
-    neopixel.rgb(0, 60, 120),
+    // neopixel.rgb(60, 0, 120),
+    // neopixel.rgb(60, 120, 0),
+    // neopixel.rgb(0, 60, 120),
 
     neopixel.rgb(120, 0, 60),
     neopixel.rgb(120, 60, 0),
@@ -60,17 +62,24 @@ const COOL_COLORS = [
 
     neopixel.rgb(12, 12, 12),
     neopixel.rgb(120, 120, 120),
-    // neopixel.rgb(255, 255, 255),
+    neopixel.rgb(255, 255, 255),
 
-    0,
     0,
     0,
     0,
     0
 ]
 
+/***
+ *  Random anim variables
+ * */
+
 let RANDOM_FRAMES = 8
 
+
+/***
+ *  Code
+ * */
 
 for (let i = 0; i < numPixels; i++) { // each pixel runs his independent clock
     firefly_timer[i] = Math.floor(Math.random() * FIREFLY_MIDNIGHT)
@@ -80,10 +89,10 @@ for (let i = 0; i < numPixels; i++) { // each pixel runs his independent clock
 
 while (true) {
     randomAnimation()
+    strip.show()
 
 
     frameNo++
-    strip.show()
     basic.pause(40)
 }
 
@@ -92,7 +101,7 @@ function randomAnimation() {
     if (frameNo % RANDOM_FRAMES !== 0) return
 
     for (let i = 0; i < numPixels; i++) {
-        if (Math.random() > .9) {
+        if (Math.random() > .7) {
             strip.setPixelColor(i, COOL_COLORS[Math.floor(Math.random() * COOL_COLORS.length)])
         }
     }
@@ -106,8 +115,16 @@ function randomAnimation() {
 }
 
 
-function animFireflies() {
-    let advance_clock_now = frameNo % FIREFLY_FRAMES === 0
+let artificial_timeout = 0
+
+function fireflyAnimation() {
+    let advance_clock_now = frameNo % FIREFLY_FRAMES == 0
+    if (advance_clock_now && artificial_timeout > 0) {
+        advance_clock_now = false
+        artificial_timeout--
+    }
+
+    let all_lights_in_sync = true // todo
 
     for (let i = 0; i < numPixels; i++) {
 
@@ -127,22 +144,28 @@ function animFireflies() {
         firefly_timer[i]++
 
         if (firefly_timer[i] >= FIREFLY_MIDNIGHT) { // strike!
-            // if (i >= 3) firefly_timer[i - 3] += FIREFLY_STEP
-            // if (i >= 2) firefly_timer[i - 2] += FIREFLY_STEP
-            // if (i >= 1) firefly_timer[i - 1] += FIREFLY_STEP
-            // if (i >= 4) firefly_timer[i - 4] += FIREFLY_STEP
-            // if (i < numPixels + 2) firefly_timer[i + 1] += FIREFLY_STEP
-            // if (i < numPixels + 3) firefly_timer[i + 2] += FIREFLY_STEP
-            // if (i < numPixels + 4) firefly_timer[i + 3] += FIREFLY_STEP
-            // if (i < numPixels + 4) firefly_timer[i + 4] += FIREFLY_STEP
-
-
-            for (let j = 0; j < numPixels; j++) { // each pixel runs his independent clock
-                firefly_timer[j]++
+            if (Math.random() > .99) {
+                artificial_timeout = Math.ceil(LAST_SEQUENCE_FRAME / FIREFLY_FRAMES * 2)
             }
+
+            if (i >= 3) firefly_timer[i - 3] += FIREFLY_STEP
+            if (i >= 2) firefly_timer[i - 2] += FIREFLY_STEP
+            if (i >= 1) firefly_timer[i - 1] += FIREFLY_STEP
+            if (i >= 4) firefly_timer[i - 4] += FIREFLY_STEP
+            if (i < numPixels + 2) firefly_timer[i + 1] += FIREFLY_STEP
+            if (i < numPixels + 3) firefly_timer[i + 2] += FIREFLY_STEP
+            if (i < numPixels + 4) firefly_timer[i + 3] += FIREFLY_STEP
+            if (i < numPixels + 4) firefly_timer[i + 4] += FIREFLY_STEP
+
+
+            // for (let j = 0; j < numPixels; j++) { // each pixel runs his independent clock
+            //     firefly_timer[j]++
+            // }
 
             firefly_timer[i] = 0
             firefly_animation_state[i] = Math.floor(Math.random() * 5)
+        } else {
+            all_lights_in_sync = false
         }
     }
 }
