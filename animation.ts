@@ -88,7 +88,7 @@ for (let i = 0; i < numPixels; i++) { // each pixel runs his independent clock
 
 
 while (true) {
-    randomAnimation()
+    fireflyAnimation()
     strip.show()
 
 
@@ -148,10 +148,10 @@ function fireflyAnimation() {
                 artificial_timeout = Math.ceil(LAST_SEQUENCE_FRAME / FIREFLY_FRAMES * 2)
             }
 
+            if (i >= 4) firefly_timer[i - 4] += FIREFLY_STEP
             if (i >= 3) firefly_timer[i - 3] += FIREFLY_STEP
             if (i >= 2) firefly_timer[i - 2] += FIREFLY_STEP
             if (i >= 1) firefly_timer[i - 1] += FIREFLY_STEP
-            if (i >= 4) firefly_timer[i - 4] += FIREFLY_STEP
             if (i < numPixels + 2) firefly_timer[i + 1] += FIREFLY_STEP
             if (i < numPixels + 3) firefly_timer[i + 2] += FIREFLY_STEP
             if (i < numPixels + 4) firefly_timer[i + 3] += FIREFLY_STEP
